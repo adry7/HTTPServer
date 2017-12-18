@@ -13,13 +13,12 @@ namespace HTTPServer
             // TODO: Call CreateRedirectionRulesFile() function to create the rules of redirection 
             CreateRedirectionRulesFile();
 
-            //Start server
-            Server server = new Server(1000, "redirectionRules.txt");
-            server.StartServer();
+            //Start server          
             // 1) Make server object on port 1000
             // 2) Start Server
+            Server server = new Server(1000, "redirectionRules.txt");
+            server.StartServer();
 
-      
 
         }
 
@@ -30,7 +29,6 @@ namespace HTTPServer
             if (!File.Exists(path))
             {
                 FileStream f = File.Create(path);
-                //f.Close();
                 TextWriter tw = new StreamWriter(f);
                 tw.WriteLine("aboutus.html,aboutus2.html");
                 tw.Close();

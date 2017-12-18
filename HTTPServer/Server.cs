@@ -97,8 +97,8 @@ namespace HTTPServer
 
         {
             // throw new NotImplementedException();
-            string content = "", content_type = "text / html";
-            string redirect, physical_path;
+            string content = string.Empty, content_type = "text / html", HomeDefaultPageName = "main.html";
+            string redirect = string.Empty, physical_path;
 
             try
             {
@@ -108,35 +108,33 @@ namespace HTTPServer
                 if (!request.ParseRequest())
                 {
                     content = LoadDefaultPage( Configuration.BadRequestDefaultPageName);
-                    return new Response(StatusCode.BadRequest, content_type, content, null);
+                    return new Response(StatusCode.BadRequest, content_type, content, redirect);
                 }
                 if (request.relativeURI == "/")
-                    return new Response(StatusCode.OK, content_type, LoadDefaultPage("main.html"), null);
+                    return new Response(StatusCode.OK, content_type, LoadDefaultPage(HomeDefaultPageName), redirect);
 
                 //TODO: map the relativeURI in request to get the physical path of the resource.
                 physical_path = Configuration.RootPath + request.relativeURI;
 
                 //TODO: check for redirect
                 redirect = GetRedirectionPagePathIFExist(request.relativeURI);
-                if (!string.IsNullOrEmpty(redirect))
-                {
-                    physical_path = Configuration.RootPath + redirect;
-                    content = File.ReadAllText(physical_path);
-                    return new Response(StatusCode.Redirect, content_type, content, redirect);
-                }
+
                 //TODO: check file exists
                 //TODO: read the physical file
-                if (File.Exists(physical_path))
-                    content = File.ReadAllText(physical_path);
-                else
+                if (!File.Exists(physical_path))
                 {
-
                     content = LoadDefaultPage(Configuration.NotFoundDefaultPageName);
-                    return new Response(StatusCode.NotFound, content_type, content, redirect);
+                    return new Response(StatusCode.NotFound, content_type, content, redirect);                   
+                }
+                else if (!String.IsNullOrEmpty(redirect))
+                {
+                    content =   File.ReadAllText(Configuration.RootPath+ request.relativeURI);
+                    return new Response(StatusCode.Redirect, content_type, content, redirect);
                 }
 
                 // Create OK response
-                return new Response(StatusCode.OK, content_type, content, null);
+                content = File.ReadAllText(Configuration.RootPath + request.relativeURI);
+                return new Response(StatusCode.OK, content_type, content, redirect);
             }
             catch (Exception ex)
             {
@@ -164,7 +162,7 @@ namespace HTTPServer
         //done
         private string LoadDefaultPage(string defaultPageName)
         {
-            string filePath = Path.Combine(Configuration.RootPath, defaultPageName);
+            string filePath =Path.Combine( Configuration.RootPath, defaultPageName);
             // TODO: check if filepath not exist log exception using Logger class and return empty string           
             try
             {
