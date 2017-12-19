@@ -81,15 +81,25 @@ namespace HTTPServer
                 return false;
             }
             //Method
-            if (requestLines[0] != RequestMethod.GET.ToString()  && requestLines[0] !=RequestMethod.HEAD.ToString() && requestLines[0] != RequestMethod.POST.ToString() )
+            if (requestLines[0] == RequestMethod.GET.ToString())
             {
-                return false;
+                method = RequestMethod.GET;
             }
-
+            else if (requestLines[0] == RequestMethod.HEAD.ToString())
+            {
+                method = RequestMethod.HEAD;
+                Console.WriteLine(method.ToString());
+            }
+            else if (requestLines[0] == RequestMethod.POST.ToString())
+            {
+                method = RequestMethod.POST;
+            }
+            else
+                return false;
             //HTTP version
             //if (requestLines[2] != HTTPVersion.HTTP09.ToString() && requestLines[2] != HTTPVersion.HTTP10.ToString() && requestLines[2] != HTTPVersion.HTTP11.ToString())
             //    return false;
-            if (requestLines[2] == "HTTP")
+            if (requestLines[2] == "HTTP/0.9")
             {
                 httpVersion = HTTPVersion.HTTP09;
             }
@@ -125,6 +135,7 @@ namespace HTTPServer
         private bool LoadHeaderLines()
         {
             //throw new NotImplementedException();
+            headerLines = new Dictionary<string, string>();
             int count = 0;
             for (int i = 1; i < contentLines.Length; i++)
             {
@@ -132,6 +143,7 @@ namespace HTTPServer
                 if (tmp.Length == 2)
                 {
                     count++;
+                    headerLines.Add(tmp[0], tmp[1]);
                 }
                 else
                 {
